@@ -1,5 +1,8 @@
 <?php
 namespace App;
+
+use Jimi\Autoloader;
+
 /**
  * jimi core file.
  *
@@ -10,6 +13,23 @@ namespace App;
  */
 class Jimi
 {
+	/*
+	 *---------------------------------------------------------------
+	 * 自动加载
+	 *---------------------------------------------------------------
+	 */
+	public function autoLoading()
+	{
+		$autoloading = $this->SystemPaths . DIR . 'Autoloading' . DIR . 'Autoloading.php';
+		if (file_exists($autoloading)) {
+			require $autoloading;
+			// 在文件末尾直接实例化和注册
+			$autoloader = new Autoloader();
+			// 自动加载整个app目录
+			return Autoloader::register('App\\', $this->appPaths.DIR);
+		}
+	}
+	
     /**
      * ---------------------------------------------------------------
      * 配置文件夹名称
@@ -66,4 +86,6 @@ class Jimi
 	 */
 	public string $ControllerPaths = __DIR__ . DIR.'Controller';
 	
+	
+
 }

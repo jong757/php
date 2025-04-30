@@ -5,7 +5,7 @@ namespace Jimi;
  * 自动加载器
  *---------------------------------------------------------------
  */
-class Autoloader // 重命名为 Autoloader
+class Autoloader
 {
     public $SystemPaths;
 	public array $autoloadNamespaces = [];
@@ -56,7 +56,6 @@ class Autoloader // 重命名为 Autoloader
     public function setNsPath(string $filePath): void
     {
 		$filename = basename($filePath);
-		
         if (file_exists($filePath)) {
             require_once $filePath .DS. $filename;
         } else {
