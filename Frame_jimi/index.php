@@ -43,7 +43,6 @@ try {
 	echo $paths->autoLoading();//自动加载
 	
 
-
 	
 	
 	// 测试使用 User 类

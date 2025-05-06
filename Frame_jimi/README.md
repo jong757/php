@@ -58,8 +58,11 @@ ORM  - CRUD (创建、读取、更新、删除) 应用
  `echo Config::get('web_path');`
  
  *扩展使用方式*
-  - 支持多层级的配置项，例如 database.db_host
+  - 支持不同配置文件(默认’system‘)
+  `Config::load('Router');`
   
+  - 支持多层级的配置项，例如 database.db_host
  `echo Config::get('web_path.db_host');`
+
  
  [Routers-路由-说明](/docs/Router.md)

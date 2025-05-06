@@ -3,6 +3,7 @@
 namespace App\System\HTTP;
 
 use Closure;
+use App\System\HTTP\Method; // 引入 Method 枚举
 
 class Router
 {
@@ -33,13 +34,34 @@ class Router
     {
         self::addRoute('DELETE', $uri, $action, $middleware);
     }
+	
+	/**
+	 * 获取请求的 URI.
+	 *
+	 * @return string
+	 */
+	public static function getUri(): string
+	{
+		return $_SERVER['REQUEST_URI'] ?? '/';
+	}
 
-    // 添加一个路由规则
-    private static function addRoute(string $method, string $uri, $action, array $middleware = []): void
+    /**
+     * 添加一个路由规则
+     *
+     * @param Method $method  HTTP 方法 (使用枚举)
+     * @param string $uri     URI
+     * @param mixed $action  Action (Closure 或 Controller 方法)
+     * @param array $middleware 中间件列表
+     * @param string|null $name 路由名称 (可选)
+     *
+     * @return void
+     */
+    private static function addRoute(Method $method, string $uri, $action, array $middleware = [], ?string $name = null): void
     {
-        self::$routes[$method][$uri] = [
+        self::$routes[$method->value][$uri] = [
             'action' => $action,
             'middleware' => $middleware,
+            'name' => $name, // 添加路由名称
         ];
     }
 
@@ -53,18 +75,18 @@ class Router
     public static function dispatch(Request $request): Response
     {
         $method = $request->getMethod();
-        $uri = $request->getUri();
+        $uri = self::getUri();
 
         // 1. 查找匹配的路由
         if (isset(self::$routes[$method])) {
             foreach (self::$routes[$method] as $routeUri => $route) {
                 if (self::matchRoute($routeUri, $uri, $params)) {
                     self::$currentRoute = ['uri' => $routeUri, 'params' => $params, 'middleware' => $route['middleware'], 'action' => $route['action']];
+					
                     return self::runRoute($request);
                 }
             }
         }
-
         // 2. 如果没有找到匹配的路由，返回 404 响应
         return new Response('404 Not Found', 404);
     }
@@ -94,7 +116,6 @@ class Router
                 return false;
             }
         }
-
         return true;
     }
 
@@ -118,7 +139,6 @@ class Router
                 return $middlewareInstance->handle($request, $next);
             };
         }
-
         // 4. 启动中间件链
         return $next($request);
     }
@@ -139,6 +159,34 @@ class Router
             return new Response('Invalid Route Action', 500);
         }
     }
+	
+	//加载路由配置
+	public static function loadRoutes(array $configPath): void
+	{
+	    $config = $configPath;
+		
+	    if (isset($config['routes']) && is_array($config['routes'])) {
+			
+	        foreach ($config['routes'] as $route) {
+	            if (!isset($route['path'], $route['method'], $route['handler'])) {
+	                continue; // 忽略无效的路由配置
+	            }
+	
+	            $method = strtoupper($route['method']);
+				
+                // 尝试将字符串转换为 Method 枚举
+                $methodEnum = Method::tryFrom($method);
+                if ($methodEnum === null) {
+                    // 处理无效的 HTTP 方法 (例如：记录日志、抛出异常)
+                    error_log("Invalid HTTP method: " . $route['method']);
+                    continue; // 跳过此路由
+                }
+	            $middleware = $route['middleware'] ?? [];
+	            self::addRoute($methodEnum, $route['path'], $route['handler'], $middleware);
+	        }
+	    }
+	}
+
 
     public static function getCurrentRouteUri(): ?string
     {

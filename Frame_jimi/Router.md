@@ -1,3 +1,4 @@
+```markdown
 # Jimi Framework 路由使用说明
 
 本文档详细介绍了 Jimi Framework 中路由的使用方法。
@@ -6,7 +7,6 @@
 
 ```php
 use App\System\HTTP\Router;
-
 ```
 
 ## 基本概念
@@ -235,4 +235,4 @@ Jimi Framework 的路由系统提供了一种简单、灵活和高性能的方�
 *   安全性
 
 希望本文档对你有所帮助！
-
+```

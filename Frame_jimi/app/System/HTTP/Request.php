@@ -2,8 +2,6 @@
 
 namespace App\System\HTTP;
 
-// use InvalidArgumentException;
-
 /**
  * HTTP 请求类，封装了请求相关的数据和操作.
  */
